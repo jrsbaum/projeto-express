@@ -7,12 +7,26 @@ const db = new NeDB({
   autoload: true,
 });
 
-servidor.get("/products", (request, response) => {
+servidor.use(express.json());
+servidor.use(express.urlencoded({ extended: true }));
+
+servidor.get("/products", (req, res) => {
   db.find({}).exec((erro, dados) => {
     if (erro) {
       console.error(erro);
     } else {
-      response.json(dados);
+      res.json(dados);
+    }
+  });
+});
+
+servidor.post("/products", (req, res) => {
+  db.insert(req.body, (erro, newProduct) => {
+    if (erro) {
+      console.error(erro);
+    } else {
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json(newProduct);
     }
   });
 });

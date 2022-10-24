@@ -74,3 +74,77 @@ servidor.listen(4000, () => {
   console.log("O servidor ta rodando!");
 });
 ```
+
+## podemos mudar o request e response para apenas req e res
+
+## adicione uma nova rota post:
+
+```
+servidor.post("/products", (req, res) => {
+  res.json(req.body);
+});
+```
+
+## adicione um middleware abaixo das const para o express "aprender a ler" nosso request:
+
+```
+servidor.use(express.json());
+servidor.use(express.urlencoded({ extended: true }));
+```
+
+## agora precisamos pegar as informacoes e conversar com o banco de dados:
+
+```
+servidor.post("/products", (req, res) => {
+  db.insert(req.body, (erro, newProduct) => {
+    if (erro) {
+      console.error(erro);
+    } else {
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json(newProduct);
+    }
+  });
+});
+```
+
+## o codigo do programa ja estara apto a salvar/inserir dados e ficara assim:
+
+```
+const { json } = require("express");
+const express = require("express");
+const servidor = express();
+const NeDB = require("nedb");
+const db = new NeDB({
+  filename: "products.db",
+  autoload: true,
+});
+
+servidor.use(express.json());
+servidor.use(express.urlencoded({ extended: true }));
+
+servidor.get("/products", (req, res) => {
+  db.find({}).exec((erro, dados) => {
+    if (erro) {
+      console.error(erro);
+    } else {
+      res.json(dados);
+    }
+  });
+});
+
+servidor.post("/products", (req, res) => {
+  db.insert(req.body, (erro, newProduct) => {
+    if (erro) {
+      console.error(erro);
+    } else {
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json(newProduct);
+    }
+  });
+});
+
+servidor.listen(4000, () => {
+  console.log("O servidor ta rodando!");
+});
+
+```
