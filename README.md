@@ -148,3 +148,42 @@ servidor.listen(4000, () => {
 });
 
 ```
+
+## seguindo a mesma logica, vamos alterar um produto porem o id permanece o mesmo. para isso usamos o metodo put:
+
+```
+servidor.put("/products/:id", (req, res) => {
+  db.update({ _id: req.params.id }, req.body, (erro) => {
+    if (erro) {
+      console.error(erro);
+    } else {
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json({
+        mensagem: `Produto atualizado com sucesso: ${req.params.id}`,
+      });
+    }
+  });
+});
+
+```
+
+## e se quisermos listar apenas um item, podemos copiar o metodo get feito anteriormente e fazer algumas mudancas:
+
+#### `servidor.get("/products"` -> `servidor.get("/products/:id"`
+
+#### `db.find({}).exec((erro, dados)` -> `db.findOne({ _id: req.params.id }).exec((erro, dados)`
+
+## o codigo entao ficara assim:
+
+```
+servidor.get("/produtos/:id", (req, res) => {
+  db.findOne({ _id: req.params.id }).exec((erro, dados) => {
+    if (erro) {
+      console.error(erro);
+    } else {
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json(dados);
+    }
+  });
+});
+```
